@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Desc:
  * <p>
@@ -30,6 +32,14 @@ public class ServerBController {
     @RequestMapping("/serviceB")
     public String service() {
         logger.info("serviceB is being called");
+        return "This is serviceB";
+    }
+
+    @RequestMapping("/timeoutB")
+    public String timeoutB() throws InterruptedException {
+        logger.info("timeoutB is being called");
+        TimeUnit.SECONDS.sleep(20);
+        logger.info("timeoutB is call finished");
         return "This is serviceB";
     }
 }
