@@ -144,10 +144,16 @@ spring.zipkin.base-url=http://localhost:9411
 
 登录到ZipKin-server服务端，可以看到调用关系图： `http://localhost:9411/zipkin/dependency/`   
 ## 遇到的问题     
-Q1: 系统调用的跟踪信息丢失
+### Q1: 系统调用的跟踪信息丢失（其实并没有丢失）
 不知是什么缘故，发现Zipkin的经常会看不到调用信息（即服务间调用的跟踪可能会丢失），    
 如果没有看到调用依赖关系，则多尝试调用几次，会看到有调用关系出现（实际测试，发现服务间调用了多次，才会在Zipkin UI上看到1次或多次调用，即：有丢失）；
-A1: 需要配置策略 
+官方解释：
+```
+// 默认的采用频率为 10%， 即10次请求才跟踪一次
+If using Zipkin, configure the percentage of spans exported using spring.sleuth.sampler.percentage (default 0.1, i.e. 10%).    
+Otherwise you might think that Sleuth is not working cause it’s omitting some spans.
+```
+解决方式1： 配置策略，每一个请求都采样 
 ```
 // 添加如下 @Bean声明，表示每次的服务调用都会跟踪，不会丢失信息（生产环境中，不建议这么做，可能会导致数据量巨大：个人理解）
 @Bean
@@ -155,3 +161,8 @@ public AlwaysSampler defaultSampler() {
     return new AlwaysSampler();
 }
 ```
+解决方式2： 设置采样频率
+通过配置：`spring.sleuth.sampler.percentage=50%`来配置采样频率；
+
+
+

@@ -24,6 +24,12 @@ public class SleuthServerAApplication {
         return new RestTemplate(httpRequestFactory);
     }
 
+    /**
+     * 设置采样频率，也可以使用配置文件的方式设置采样频率:
+     * {@code spring.sleuth.sampler.percentage=10% }
+     *
+     * @return
+     */
     @Bean
     public AlwaysSampler defaultSampler() {
         return new AlwaysSampler();

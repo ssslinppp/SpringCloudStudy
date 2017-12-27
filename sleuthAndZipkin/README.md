@@ -76,11 +76,48 @@ ServiceA通过Get调用请求ServiceB时，Trace组件会自动添加相关追�
 在我们的示例程序中，除了使用上述3种方式外，还可以通过`Spring boot`+`引入zipkin相关Jar包`来启动Zipkin-Server，该方式会在`basic`中进行介绍；     
 `ZipKin-Server`服务启动后，在浏览器输入：`http://your_host:9411`就可以看到Zipkin的UI界面；   
 
+---
 
-- Spring-cloud-sleuth架构图    
+## Spring-cloud-sleuth
+### 架构图   
 ![spring-cloud-sleuth](https://raw.githubusercontent.com/spring-cloud/spring-cloud-sleuth/master/docs/src/main/asciidoc/images/trace-id.png)    
 [Github地址](https://github.com/spring-cloud/spring-cloud-sleuth)   
 
+### 主要功能：延时分析    
+通过记录时间信息，来帮助`延时分析`，通过Sleuth，可以查明系统延时的原因。   
+1. 可以控制采样策略：通俗的讲就是，哪些请求需要追踪，哪些不需要，跟踪的频率可以控制（如10次请求调用，只追踪1次）；
+2. 可以报告给Zipkin进行查询和可视化分析，默认时使用Http传输，默认端口为：9411；
+
+
+### 跟踪的入口点
+主要是Spring应用的入口和出口点（如）：
+- servlet filter
+- async endpoints
+- rest template （服务间的调用）
+- scheduled actions 
+- message channels 
+- zuul filters
+- feign client
+
+### Sleuth收集跟踪信息（Trace）并传递给Zipkin
+包含`spring-cloud-sleuth-zipkin`依赖时，系统就会`收集`并`传输`与Zipkin兼容的跟踪信息到Zipkin-server；  
+传输到Zipkin-Server的方式：
+1. Http方式（默认）： 通过本地的`9411`端口进行传输，可以通过配置`spring.zipkin.baseUrl`来改变Zipkin-Server的地址； 
+2. spring-rabbit 或 spring-kafka： 当包含相应依赖时，`trace`信息将会发送到broker中，而不是通过Http进行传输；
+
+#### 注意点
+1. `spring-cloud-sleuth-stream`已废弃，请不要再使用；
+2. 采样频率设置：`spring.sleuth.sampler.percentage=10%`来设置采样频率；
+
+### 日志记录
+默认时，SLF4J的日志都会记录`appname, traceId, spanId, exportable`信息，默认值：
+```
+logging.pattern.level=%5p [${spring.zipkin.service.name:${spring.application.name:-}},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-},%X{X-Span-Export:-}]
+```
+其他的日志方式，必须手动进行配置；
+
+### 其他
+允许在进程将传递信息（baggage）： 可以通过Http或者Messaging进行传递；   
 
 ---
 
