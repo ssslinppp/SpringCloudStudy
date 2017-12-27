@@ -32,4 +32,17 @@ public class ServerAController {
         logger.info("serviceACall is being called");
         return restTemplate.getForObject("http://localhost:18002/serviceB", String.class);
     }
+
+    /**
+     * 测试服务调用不通时的情况
+     *
+     * @return
+     */
+    @RequestMapping("/callError")
+    public String serviceError() {
+        logger.info("callError is being called");
+
+        //没有此服务，或此服务不通时的测试
+        return restTemplate.getForObject("http://localhost:18002/serviceBError", String.class);
+    }
 }
