@@ -5,6 +5,12 @@
 ---
 
 # zipKin介绍
+- OpenZipkin项目是Zipkin的开源版本； 
+- Zipkin于2010年由Twitter成立；
+- 实现依据，[Google论文：Dapper papers](https://research.google.com/pubs/pub36356.html);
+- Zipkin提供了Rest API供Client调用，甚至有基于Spring-boot的Zipkin-Server的实现（仅仅使用注解：`@EnableZipkinServer`即可实现）；
+
+
 ## zipKin架构图     
 [架构图链接](https://zipkin.io/pages/architecture.html)    
 ![zipKin架构图](https://zipkin.io/public/img/architecture-1.png)       
@@ -80,9 +86,77 @@ ServiceA通过Get调用请求ServiceB时，Trace组件会自动添加相关追�
 ---
 
 # Spring-cloud-sleuth介绍
-## 架构图   
+Spring-cloud-sleuth: 分布式跟踪系统解决方案；[官方链接-spring-cloud-sleuth](https://cloud.spring.io/spring-cloud-sleuth/single/spring-cloud-sleuth.html)       
+
+## 基本术语
+### Span
+追踪的基本单元，包含的数据如：时间戳、描述、annotation（key-value）等，如下是一个Span的model示例：
+```
+{
+      "traceId": "30c828c08a02a0c6",
+      "id": "30c828c08a02a0c6",         //SpanID
+      "name": "http:/serviceacall",     //调用的服务
+      "timestamp": 1514356890878000,
+      "duration": 15368, 
+      "annotations": [                  //用于记录相关事件
+        {
+          "timestamp": 1514356890878000,
+          "value": "sr",                // server send
+          "endpoint": {
+            "serviceName": "sleuth-server-a",
+            "ipv4": "172.20.21.176",
+            "port": 18001
+          }
+        },
+        {
+          "timestamp": 1514356890893368,
+          "value": "ss",                // server receive
+          "endpoint": {
+            "serviceName": "sleuth-server-a",
+            "ipv4": "172.20.21.176",
+            "port": 18001
+          }
+        }
+      ],
+      "binaryAnnotations": [ //包含的binaryAnnotations
+        {
+          "key": "http.host",
+          "value": "localhost",
+          "endpoint": {
+            "serviceName": "sleuth-server-a",
+            "ipv4": "172.20.21.176",
+            "port": 18001
+          }
+        },
+        {
+          "key": "spring.instance_id",
+          "value": "LIULIN-PC:sleuth-server-a:18001",
+          "endpoint": {
+            "serviceName": "sleuth-server-a",
+            "ipv4": "172.20.21.176",
+            "port": 18001
+          }
+        }
+      ]
+    }
+```
+
+### Trace
+相关Span的集合，组织成一个tree行结构；
+
+### Annotation
+用于及时记录事件信息的存在，核心的声明包括：
+- cs: client send
+- cr: client received
+- ss: server send
+- sr: server reveived
+
+### 架构图   
 ![spring-cloud-sleuth](https://raw.githubusercontent.com/spring-cloud/spring-cloud-sleuth/master/docs/src/main/asciidoc/images/trace-id.png)    
 [Github地址](https://github.com/spring-cloud/spring-cloud-sleuth)   
+
+![服务间的调用关系图](https://raw.githubusercontent.com/spring-cloud/spring-cloud-sleuth/master/docs/src/main/asciidoc/images/parents.png)  
+
 
 ## 主要功能：`延时分析`    
 通过记录相关时间信息，来帮助`延时分析`，通过Sleuth，可以查明系统延时的原因。   
@@ -126,12 +200,24 @@ Sampler customSampler() {
 }
 ```
 
-## 日志记录
+## 日志关联
 默认时，SLF4J的日志都会记录`appname, traceId, spanId, exportable`信息，默认值：
 ```
 logging.pattern.level=%5p [${spring.zipkin.service.name:${spring.application.name:-}},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-},%X{X-Span-Export:-}]
 ```
+示例：
+```
+service1.log:2016-02-26 11:15:47.561  INFO [service1,2485ec27856c56f4,2485ec27856c56f4,true] 68058 --- [nio-8081-exec-1] i.s.c.sleuth.docs.service1.Application   : Hello from service1. Calling service2
+service2.log:2016-02-26 11:15:47.710  INFO [service2,2485ec27856c56f4,9aa10ee6fbde75fa,true] 68059 --- [nio-8082-exec-1] i.s.c.sleuth.docs.service2.Application   : Hello from service2. Calling service3 and then service4
+service3.log:2016-02-26 11:15:47.895  INFO [service3,2485ec27856c56f4,1210be13194bfe5,true] 68060 --- [nio-8083-exec-1] i.s.c.sleuth.docs.service3.Application   : Hello from service3
+service2.log:2016-02-26 11:15:47.924  INFO [service2,2485ec27856c56f4,9aa10ee6fbde75fa,true] 68059 --- [nio-8082-exec-1] i.s.c.sleuth.docs.service2.Application   : Got response from service3 [Hello from service3]
+service4.log:2016-02-26 11:15:48.134  INFO [service4,2485ec27856c56f4,1b1845262ffba49d,true] 68061 --- [nio-8084-exec-1] i.s.c.sleuth.docs.service4.Application   : Hello from service4
+service2.log:2016-02-26 11:15:48.156  INFO [service2,2485ec27856c56f4,9aa10ee6fbde75fa,true] 68059 --- [nio-8082-exec-1] i.s.c.sleuth.docs.service2.Application   : Got response from service4 [Hello from service4]
+service1.log:2016-02-26 11:15:48.182  INFO [service1,2485ec27856c56f4,2485ec27856c56f4,true] 68058 --- [nio-8081-exec-1] i.s.c.sleuth.docs.service1.Application   : Got response from service2 [Hello from service2, response from service3 [Hello from service3] and from service4 [Hello from service4]]
+```
+
 其他的日志方式，必须手动进行配置；
+
 
 ## 注意点
 1. `spring-cloud-sleuth-stream`已废弃，请不要再使用；
