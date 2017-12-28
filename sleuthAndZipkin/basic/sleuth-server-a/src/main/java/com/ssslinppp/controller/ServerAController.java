@@ -35,6 +35,18 @@ public class ServerAController {
     }
 
     /**
+     * 普通方法调用声明 @NewSpan、@SpanTag 的方法
+     * 结果：被调用的test5方法，其Span和tag没有被记录；
+     *
+     * @return
+     */
+    @RequestMapping("/test6")
+    public String testMethod6() {
+        logger.info("testMethod6(without annotation) will call testMethod5(with @spantag)");
+        return testMethod5("test6()");
+    }
+
+    /**
      * 测试相关声明的使用
      *
      * @param param

@@ -94,7 +94,8 @@ server.port=18001
 spring.zipkin.base-url=http://localhost:9411
 ```
 
-## 相关注解
+## 为Span添加 Tag
+### @NewSpan
 - @NewSpan: 创建新的Span
 - @SpanTag：添加自定义的tag，方便在搜索时，快速定位；
 
@@ -148,6 +149,7 @@ public String testMethod5(@SpanTag("test5Tag") String param) {
   }
 ```
 
+### @ContinueSpan
 - @ContinueSpan
 - @SpanTag
 示例：
@@ -175,6 +177,26 @@ public String testMethod11(@SpanTag("testTag11") String param) {
       }
       ......
  ]
+```
+
+### TagValueResolver 
+```
+@NewSpan
+public void getAnnotationForTagValueResolver(@SpanTag(key = "test", resolver = TagValueResolver.class) String test) {
+}
+
+@Bean(name = "myCustomTagValueResolver")
+public TagValueResolver tagValueResolver() {
+	return parameter -> "Value from myCustomTagValueResolver";
+}
+
+```
+
+### Resolving expressions for value
+```
+@NewSpan
+public void getAnnotationForTagValueExpression(@SpanTag(key = "test", expression = "length() + ' characters'") String test) {
+}
 ```
 
 ---
