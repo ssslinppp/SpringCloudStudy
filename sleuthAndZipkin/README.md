@@ -188,7 +188,7 @@ Sleuth收集跟踪信息（Trace），并通过Http或RabbitMq等方式传递给
 
 示例：
 ```
-// 收集50%的请求
+// 实现自定义的采样算法：收集50%的请求
 @Bean
 Sampler customSampler() {
 	return new Sampler() {
