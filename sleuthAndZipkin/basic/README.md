@@ -148,6 +148,35 @@ public String testMethod5(@SpanTag("test5Tag") String param) {
   }
 ```
 
+- @ContinueSpan
+- @SpanTag
+示例：
+```
+@ContinueSpan(log = "testMethod11")
+@RequestMapping("/test11")
+public String testMethod11(@SpanTag("testTag11") String param) {
+    logger.info("testMethod11() is called...");
+    return "retValue-testMethod11()";
+}
+```
+
+使用`http://localhost:18001/test11?param=test`调用时，对应的部分Json如下，tag被包装在`binaryAnnotations` 中：
+```
+"binaryAnnotations": [
+        ......
+      {
+        "key": "testTag11",
+        "value": "test",
+        "endpoint": {
+          "serviceName": "sleuth-server-a",
+          "ipv4": "172.20.21.176",
+          "port": 18001
+        }
+      }
+      ......
+ ]
+```
+
 ---
 
 # sleuth-serverB

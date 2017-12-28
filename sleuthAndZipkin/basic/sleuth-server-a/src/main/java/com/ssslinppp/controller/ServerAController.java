@@ -3,6 +3,7 @@ package com.ssslinppp.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.annotation.ContinueSpan;
 import org.springframework.cloud.sleuth.annotation.NewSpan;
 import org.springframework.cloud.sleuth.annotation.SpanTag;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,6 +45,18 @@ public class ServerAController {
     public String testMethod5(@SpanTag("test5Tag") String param) {
         logger.info("testMethod5() is called...");
         return "retValue-testMethod5()";
+    }
+
+    /**
+     * 使用ContinueSpan来添加tag
+     *
+     * @param param
+     */
+    @ContinueSpan(log = "testMethod11")
+    @RequestMapping("/test11")
+    public String testMethod11(@SpanTag("testTag11") String param) {
+        logger.info("testMethod11() is called...");
+        return "retValue-testMethod11()";
     }
 
     @RequestMapping("/serviceA")
