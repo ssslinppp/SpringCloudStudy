@@ -3,6 +3,8 @@ package com.ssslinppp.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.annotation.NewSpan;
+import org.springframework.cloud.sleuth.annotation.SpanTag;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -20,6 +22,29 @@ public class ServerAController {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    /**
+     * 使用{@code @NewSpan} 声明，可以自定义Span
+     */
+    @NewSpan("customNameOnTestMethod4")
+    @RequestMapping("/test4")
+    public String testMethod4() {
+        logger.info("This is testMethod4() with span name: customNameOnTestMethod4 ");
+        return "test4";
+    }
+
+    /**
+     * 测试相关声明的使用
+     *
+     * @param param
+     * @return
+     */
+    @NewSpan(name = "customNameOnTestMethod5")
+    @RequestMapping("/test5")
+    public String testMethod5(@SpanTag("test5Tag") String param) {
+        logger.info("testMethod5() is called...");
+        return "retValue-testMethod5()";
+    }
 
     @RequestMapping("/serviceA")
     public String home() {

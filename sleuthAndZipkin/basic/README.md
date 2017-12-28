@@ -6,6 +6,8 @@
 2. sleuth-serverA: 与sleuth-serverB通过http互相调用；
 3. sleuth-serverB: 与sleuth-serverA通过http互相调用；
 
+---
+
 # Zipkin-Server
 依赖：
 ```
@@ -49,6 +51,8 @@ server.port=9411
 http://localhost:9411
 ```
 
+---
+
 # sleuth-serverA
 [参考链接](https://github.com/spring-cloud/spring-cloud-sleuth)     
 
@@ -89,6 +93,62 @@ spring.application.name=sleuth-server-a
 server.port=18001
 spring.zipkin.base-url=http://localhost:9411
 ```
+
+## 相关注解
+- @NewSpan: 创建新的Span
+- @SpanTag：添加自定义的tag，方便在搜索时，快速定位；
+
+示例：
+```
+@NewSpan(name = "customNameOnTestMethod5")
+@RequestMapping("/test5")
+public String testMethod5(@SpanTag("test5Tag") String param) {
+    logger.info("testMethod5() is called...");
+    return "retValue-testMethod5()";
+}
+```
+
+使用`http://localhost:18001/test5?param=test`调用时，对应的部分Json如下，tag被包装在`binaryAnnotations` 中：
+```
+// 如下是该方法对应的Span
+{
+  "traceId": "dcd01ed20e1e2060",
+  "id": "a78408a707d88934",
+  "name": "custom-name-on-test-method5",  // @NewSpan(name = "customNameOnTestMethod5")
+  "parentId": "dcd01ed20e1e2060",
+  "timestamp": 1514445627851000,
+  "duration": 3355,
+  "binaryAnnotations": [
+    {
+      "key": "class",
+      "value": "ServerAController",
+      "endpoint": {
+        "serviceName": "sleuth-server-a",
+        "ipv4": "172.20.21.176",
+        "port": 18001
+      }
+    },
+    {
+      "key": "method",
+      "value": "testMethod5",
+      "endpoint": {
+        "serviceName": "sleuth-server-a",
+        "ipv4": "172.20.21.176",
+        "port": 18001
+      }
+    },
+    {
+      "key": "test5Tag",   // 这是使用 @SpanTag 标注的tag
+      "value": "test",     // http://localhost:18001/test5?param=test 时显示的参数值
+      "endpoint": {
+        "serviceName": "sleuth-server-a",
+        "ipv4": "172.20.21.176",
+        "port": 18001
+      }
+  }
+```
+
+---
 
 # sleuth-serverB
 与sleuth-serverA基本相同；
