@@ -243,6 +243,86 @@ server.port=18002
 spring.zipkin.base-url=http://localhost:9411
 ```
 
+---
+# 将Trace信息保存在ElasticSearch中
+TODO
+
+---
+
+# 将Trace信息保存在mysql数据库中(不推荐使用MySQL存储，推荐使用ElasticSearch)
+将Trace信息存在在mysql中效率不高，生产环境中，建议使用ElasticSearch存储，这样也有助于自定义的日志分析；
+
+## 创建mysql数据表
+[mysql.sql-官网](https://github.com/openzipkin/zipkin/blob/master/zipkin-storage/mysql/src/main/resources/mysql.sql)   
+可以在该工程下看到sql文件
+
+主要是有3张表：
+1. zipkin_annotations
+2. zipkin_dependencies
+3. zipkin-spans
+
+## 添加相关依赖
+```
+<dependencies>
+     <!-- zipkin 的UI和server -->
+     <dependency>
+        <groupId>io.zipkin.java</groupId>
+        <artifactId>zipkin-autoconfigure-ui</artifactId>
+    </dependency>
+     <dependency>
+        <groupId>io.zipkin.java</groupId>
+        <artifactId>zipkin-server</artifactId>
+    </dependency>
+    
+    <!-- mysql支持 -->
+    <dependency>
+        <groupId>io.zipkin.java</groupId>
+        <artifactId>zipkin-autoconfigure-storage-mysql</artifactId>
+    </dependency>
+     <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+     <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+    
+ </dependencies>
+ <dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>${spring-cloud.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+## mysql配置
+```
+# 设置采样频率，不是配置mysql所必须
+spring.sleuth.sampler.percentage=1.0
+
+# 待研究
+spring.sleuth.enabled=false
+
+# 设置存储类型
+zipkin.storage.type=mysql
+
+# mysql 配置
+spring.datasource.url=jdbc:mysql://10.254.9.21:30118/zipkin?useUnicode=true&characterEncoding=utf8
+spring.datasource.username=root
+spring.datasource.password=epic1234
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.continue-on-error=true
+```
+
+---
+
 # 测试
 通过`sleuth-serverA`与`sleuth-serverB`之间的Http调用，可以看到日志输出包含 traceId、spanId等信息；
 ```
