@@ -235,6 +235,10 @@ service1.log:2016-02-26 11:15:48.182  INFO [service1,2485ec27856c56f4,2485ec2785
 ---
 
 # 项目分类
-## basic目录
-基本的示例程序，该程序仅仅演示如何使用`Zipkin` + `Spring cloud sleuth`完成基本的分布式追踪系统，不适合在生产环境上部署；
+## basicWithMysql目录
+基本的示例程序，该程序演示了：
+1. 如何使用`Zipkin` + `Spring cloud sleuth`完成基本的分布式追踪系统；
+2. 将跟踪信息存在在mysql中进行持久化存储；
+
+TODO： 使用ElasticSearch进行持久化存储；
 

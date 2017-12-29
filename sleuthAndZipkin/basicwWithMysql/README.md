@@ -254,7 +254,11 @@ TODO
 
 ## 创建mysql数据表
 [mysql.sql-官网](https://github.com/openzipkin/zipkin/blob/master/zipkin-storage/mysql/src/main/resources/mysql.sql)   
-可以在该工程下看到sql文件
+可以在该工程下看到sql文件       
+
+参考链接：[How to configure Spring Cloud Zipkin Server with MySQL for persistence?
+](https://stackoverflow.com/questions/39174579/how-to-configure-spring-cloud-zipkin-server-with-mysql-for-persistence)
+
 
 主要是有3张表：
 1. zipkin_annotations
