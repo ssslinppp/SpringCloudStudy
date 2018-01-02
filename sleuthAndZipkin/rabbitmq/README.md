@@ -1,5 +1,7 @@
 [基础回顾](https://github.com/ssslinppp/SpringCloudStudy/tree/master/sleuthAndZipkin)   
 
+[[_TOC_]]
+
 # 概述
 Sleuth with Zipkin via RabbitMQ or Kafka
 Sleuth传输数据到Zipkin-Server，使用rabbitmq而不是默认的Http；    
@@ -242,6 +244,6 @@ spring.rabbitmq.listener.simple.max-concurrency=2
 
 ---
 
-## 参考链接
+# 参考链接
 [SpringCloud系列：分布式服务调用链跟踪整合Zipkin、RabbitMQ、Elasticsearch（二）](http://www.bijishequ.com/detail/573367?p=106)    
 [Spring cloud sleuth rabbitmq zipkin mysql分布式服务跟踪分析](http://blog.csdn.net/stonexmx/article/details/73381516)     
