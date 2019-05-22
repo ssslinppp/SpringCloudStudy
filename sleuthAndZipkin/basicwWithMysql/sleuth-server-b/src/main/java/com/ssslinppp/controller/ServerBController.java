@@ -9,13 +9,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Desc:
- * <p>
- * User: liulin ,Date: 2017/12/27 , Time: 11:32 <br/>
- * Email: liulin@cmss.chinamobile.com <br/>
- * To change this template use File | Settings | File Templates.
- */
 @RestController
 public class ServerBController {
     private static final Logger logger = LoggerFactory.getLogger(ServerBController.class);
